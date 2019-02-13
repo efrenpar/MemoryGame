@@ -1,6 +1,10 @@
 import cv2 
 import numpy as np
+import random
 
+
+
+#funcion que detecta interseccion entre objetos
 
 def checkIntersection (selectDots,shapeDots):
 	
@@ -25,13 +29,70 @@ def checkIntersection (selectDots,shapeDots):
 	
 	else :
 		return False
-		 
+		
+		
+#generar posiciones aleatorias
+
+def generateRandomPositions():
 	
+	#coordenadas en x
+	firstX = 340/2
+	secondX = (340 + firstX)/4
+	
+	#coordenadas en y
+	firstY = 220/2
+	secondY = (220+firstY)/4
+	
+	order = { 1: (firstX,firstY) , 2: (firstX,secondY) , 3: (secondX,firstY) , 4: (secondX,secondY)}
+	
+	lista = []
+	while len(lista) < 4:
+		rand = random.randint(1,4)
+		if len(lista) == 0:
+			lista.append(order[rand])
+		elif buscarCoordenadas(lista,order[rand]) == False:
+			lista.append(order[rand])
+			
+	return lista
+	
+#buscar 
+def buscarCoordenadas(lista,coordenada):
+	
+	for i in range (len(lista)):
+		if lista[i][0] == coordenada[0]:
+			if lista[i][1] == coordenada[1]:
+				return True
+	return False
+	
+#generarShapes
+def generarShapes(circles,rectangles,randomPositions,MAX):
+	shapes = []
+	for i in range(len(randomPositions)):
+		if len(circles)<MAX:
+			circles.append({0:randomPositions[i]})
+			continue
+		elif len(rectangles)<MAX:
+			rectangles.append({1:randomPositions[i]})
+			continue
+			
+def mostrarShapes(circles,rectangles,img):
+	for circle in circles:
+			cv2.circle(img,circle[0], 10, (255,255,255), -1)
+	for rectangle in rectangles:
+			cv2.rectangle(img,rectangle[1],(rectangle[1][0]+10,rectangle[1][1]+10),(0,255,0),8)
+	
+		
 
+"""
+print randomPositions
+print circles
+print rectangles
+"""
 
-
+"""
 cont=0
 cont1=0
+"""
 
 #define las fronteras
 lowerBound = np.array([170,70,50])
@@ -48,7 +109,15 @@ cam = cv2.VideoCapture(0)
 kernelOpen=np.ones((5,5))
 kernelClose=np.ones((20,20))
 
+circles = []
+rectangles = []
+randomPositions = []
+contadores = []
 
+
+randomPositions = generateRandomPositions()
+generarShapes(circles,rectangles,randomPositions,2)
+print circles
 
 selector=[]
 while True:
@@ -86,7 +155,10 @@ while True:
 		#cv2.cv.PutText(cv2.cv.fromarray(img), str(i+1),(x,y+h),font,(0,255,255))
 		
 	print len(selector)
+	
+	mostrarShapes(circles,rectangles,img)
 	  
+	"""
 	if cont<1:
 		cv2.circle(img,(170,110), 10, (255,0,0), -1)
 	if cont1<1:
@@ -97,7 +169,7 @@ while True:
 		cont = cont+1
 	if checkIntersection(selector,[85,110,95,120]):
 		cont1 = cont1+1
-	
+	"""
 	
 	
 	
