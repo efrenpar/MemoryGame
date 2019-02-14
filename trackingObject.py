@@ -1,6 +1,20 @@
 import cv2 
 import numpy as np
 import random
+import threading
+import Queue
+import time
+
+
+class Piece:
+	def __init__(self,shape,cover,isCover):
+		self.shape = shape
+		self.cover = cover
+		self.isCover = isCover
+	
+	 
+
+
 
 
 
@@ -76,11 +90,32 @@ def generarShapes(circles,rectangles,randomPositions,MAX):
 			continue
 			
 def mostrarShapes(circles,rectangles,img):
+	viewPositions = []
 	for circle in circles:
-			cv2.circle(img,circle[0], 10, (255,255,255), -1)
+			cv2.circle(img,circle[0], 10, (255,0,0), -1)
+			viewPositions.append([circle[0],'circle',True])   #shapes format
 	for rectangle in rectangles:
-			cv2.rectangle(img,rectangle[1],(rectangle[1][0]+10,rectangle[1][1]+10),(0,255,0),8)
+			recCoord= (rectangle[1][0]-10,rectangle[1][1]-10)
+			cv2.rectangle(img,recCoord,(rectangle[1][0]+10,rectangle[1][1]+10),(0,255,0),-1)
+			viewPositions.append([recCoord,'rectangle',True])
 	
+	return viewPositions
+			
+def coverShapes(covers,img):
+	viewCovers = []
+	for position in covers:
+		if position[1] == 'circle' and position[2]:
+			viewCovers.append([position[0][0]-10,position[0][1]-10,position[0][0]+10,position[0][1]+10])
+			cv2.rectangle(img,(position[0][0]-10,position[0][1]-10),(position[0][0]+10,position[0][1]+10),(0,0,0),-1)
+		elif position[1] == 'rectangle' and position[2]:
+			viewCovers.append([position[0][0],position[0][1],position[0][0]+20,position[0][1]+20])
+			cv2.rectangle(img,position[0],(position[0][0]+20,position[0][1]+20),(0,0,0),-1)
+	return viewCovers
+	
+def coverEvent(viewCovers,selector):
+	for view in viewCovers:
+		if checkIntersection(selector,view):
+			print "hola"
 		
 
 """
@@ -113,11 +148,14 @@ circles = []
 rectangles = []
 randomPositions = []
 contadores = []
+covers = []
+viewCovers = []
 
 
 randomPositions = generateRandomPositions()
 generarShapes(circles,rectangles,randomPositions,2)
 print circles
+print rectangles
 
 selector=[]
 while True:
@@ -154,9 +192,12 @@ while True:
 		
 		#cv2.cv.PutText(cv2.cv.fromarray(img), str(i+1),(x,y+h),font,(0,255,255))
 		
-	print len(selector)
+	#print len(selector)
 	
-	mostrarShapes(circles,rectangles,img)
+	covers = mostrarShapes(circles,rectangles,img)
+	viewCovers = coverShapes(covers,img)
+	coverEvent(viewCovers,selector)
+	
 	  
 	"""
 	if cont<1:
