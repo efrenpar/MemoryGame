@@ -4,15 +4,7 @@ import random
 import threading
 import Queue
 import time
-
-
-class Piece:
-	def __init__(self,shape,cover,isCover):
-		self.shape = shape
-		self.cover = cover
-		self.isCover = isCover
-	
-	 
+import utils
 
 
 
@@ -21,7 +13,8 @@ class Piece:
 #funcion que detecta interseccion entre objetos
 
 def checkIntersection (selectDots,shapeDots):
-	
+	if selectDots is None:
+		return False
 	
 	if len(shapeDots) == 3 and len(selectDots) != 0:
 		x1 = shapeDots[0]-shapeDots[2]
@@ -31,15 +24,20 @@ def checkIntersection (selectDots,shapeDots):
 		
 		if  selectDots[0]<x2 and selectDots[0] >x1 and selectDots[1]<y2 and selectDots[1]>y1:
 			return True	
+		else:
+			return False
 			
-	elif len(shapeDots) == 4 and len(selectDots) != 0:
+	if len(shapeDots) == 4 and len(selectDots) != 0:
 		x1 = shapeDots[0]
 		x2 = shapeDots[1]
 		y1 = shapeDots[2]
 		y2 = shapeDots[3]
 		
 		if  selectDots[0]<x2 and selectDots[0] >x1 and selectDots[1]<y2 and selectDots[1]>y1:
+			print 'se cumple'
 			return True	
+		else :
+			return False
 	
 	else :
 		return False
@@ -93,29 +91,16 @@ def mostrarShapes(circles,rectangles,img):
 	viewPositions = []
 	for circle in circles:
 			cv2.circle(img,circle[0], 10, (255,0,0), -1)
-			viewPositions.append([circle[0],'circle',True])   #shapes format
+			
 	for rectangle in rectangles:
 			recCoord= (rectangle[1][0]-10,rectangle[1][1]-10)
 			cv2.rectangle(img,recCoord,(rectangle[1][0]+10,rectangle[1][1]+10),(0,255,0),-1)
-			viewPositions.append([recCoord,'rectangle',True])
 	
-	return viewPositions
+	
 			
-def coverShapes(covers,img):
-	viewCovers = []
-	for position in covers:
-		if position[1] == 'circle' and position[2]:
-			viewCovers.append([position[0][0]-10,position[0][1]-10,position[0][0]+10,position[0][1]+10])
-			cv2.rectangle(img,(position[0][0]-10,position[0][1]-10),(position[0][0]+10,position[0][1]+10),(0,0,0),-1)
-		elif position[1] == 'rectangle' and position[2]:
-			viewCovers.append([position[0][0],position[0][1],position[0][0]+20,position[0][1]+20])
-			cv2.rectangle(img,position[0],(position[0][0]+20,position[0][1]+20),(0,0,0),-1)
-	return viewCovers
+
 	
-def coverEvent(viewCovers,selector):
-	for view in viewCovers:
-		if checkIntersection(selector,view):
-			print "hola"
+
 		
 
 """
@@ -124,10 +109,7 @@ print circles
 print rectangles
 """
 
-"""
-cont=0
-cont1=0
-"""
+
 
 #define las fronteras
 lowerBound = np.array([170,70,50])
@@ -152,12 +134,23 @@ covers = []
 viewCovers = []
 
 
+
+
 randomPositions = generateRandomPositions()
 generarShapes(circles,rectangles,randomPositions,2)
-print circles
-print rectangles
+
 
 selector=[]
+
+table = utils.Table()
+table.initialize_odds()
+table.initialize_table(340,220)
+
+print table.pares
+print table.cards
+print table.posicion
+
+
 while True:
 	
 	
@@ -194,23 +187,31 @@ while True:
 		
 	#print len(selector)
 	
-	covers = mostrarShapes(circles,rectangles,img)
-	viewCovers = coverShapes(covers,img)
-	coverEvent(viewCovers,selector)
-	
-	  
-	"""
-	if cont<1:
-		cv2.circle(img,(170,110), 10, (255,0,0), -1)
-	if cont1<1:
-		cv2.rectangle(img,(85,110),(95,120),(0,255,0),8)
+	#mostrarShapes(circles,rectangles,img)
 	
 	
-	if checkIntersection(selector,[170,110,10]):
+	for cont, carta in table.cards.iteritems():
+		carta.cover_draw(img,carta.coords)
+	
+	
+	'''if cont<1:
+		cv2.circle(img,(110,72),10,(255,0,0),-1)
+		
+	#print checkIntersection(selector,[pieza.coord,pieza.coordC])
+		
+	if checkIntersection(selector,[117,72,137,120]):
 		cont = cont+1
+		
+	
+	if cont1<1:
+		cv2.rectangle(img,(85,110),(105,130),(255,0,0),-1)
+	
+	
+	
 	if checkIntersection(selector,[85,110,95,120]):
 		cont1 = cont1+1
-	"""
+	
+	'''
 	
 	
 	
