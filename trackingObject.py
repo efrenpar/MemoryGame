@@ -150,6 +150,7 @@ print table.pares
 print table.cards
 print table.posicion
 
+pressed=0
 
 while True:
 	
@@ -157,7 +158,7 @@ while True:
 
 	ret,img = cam.read()
 
-	img = cv2.resize(img,(340,220))
+	img = cv2.resize(img,(360,240))
 	imgHSV = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
 
 	#crea la mascara
@@ -191,7 +192,9 @@ while True:
 	
 	
 	for cont, carta in table.cards.iteritems():
+		carta.shape_view(img)
 		carta.cover_draw(img,carta.coords)
+		carta.check_odd(selector,pressed)
 	
 	
 	'''if cont<1:
